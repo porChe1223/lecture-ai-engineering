@@ -1,8 +1,11 @@
 name: ML Pipeline CI
 
 on:
+  ## mainブランチへのプッシュをトリガーにする
   # push:
   #   branches: [ main, master  ]
+
+  ## mainブランチへのプルリクをトリガーにする
   pull_request:
     branches: [main, master]
 
@@ -17,25 +20,30 @@ jobs:
         with:
           python-version: "3.10"
 
+      ## 依存関係のチェック
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest great_expectations pandas scikit-learn flake8 black mypy pytest-cov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      ## コードのLintチェック(バグ発見)
       - name: Lint with flake8
         run: |
           flake8 day5/ex3 --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 day5/ex3 --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
+      ## フォーマットチェック(コードの整形)
       - name: Format check with black
         run: |
           black --check day5/ex3
 
+      ## データのテスト
       - name: Run data tests
         run: |
           pytest day5/ex3/tests/test_data.py -v
 
+      ## モデルのテスト
       - name: Run model tests
         run: |
           pytest day5/ex3/tests/test_model.py -v
